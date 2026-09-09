@@ -13,13 +13,18 @@ public:
 
 public slots:
     void setNodeModeActive(bool active);
+    void setLineModeActive(bool active);
+    void setDeleteModeActive(bool active);
 
 signals:
     void nodeToggled(bool checked);
+    void lineToggled(bool checked);
+    void deleteToggled(bool checked);
 
 private:
     QToolButton *makeButton(const QString &text, const QString &objectName = {},
                             bool checkable = true);
+    void setModeButton(QToolButton *button, bool active, const QString &idleText);
 
     QToolButton *m_nodeButton = nullptr;
     QToolButton *m_lineButton = nullptr;

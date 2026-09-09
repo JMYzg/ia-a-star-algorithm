@@ -1,5 +1,6 @@
 #include "board_scene.h"
 
+#include "edge_item.h"
 #include "node_item.h"
 
 #include <QGraphicsSceneMouseEvent>
@@ -20,8 +21,20 @@ void BoardScene::setAddNodeMode(bool active)
     setMode(active ? Mode::AddNode : Mode::Idle);
 }
 
+void BoardScene::setAddLineMode(bool active)
+{
+    setMode(active ? Mode::AddLine : Mode::Idle);
+}
+
+void BoardScene::setDeleteMode(bool active)
+{
+    setMode(active ? Mode::Delete : Mode::Idle);
+}
+
 void BoardScene::cancelInteraction()
 {
+    stopGhostLine();
+    m_lineAnchorId = Graph::kInvalidNodeId;
     setMode(Mode::Idle);
 }
 
@@ -45,7 +58,107 @@ void BoardScene::addNodeAt(const QPointF &pos)
 
     connect(item, &NodeItem::positionChanged, this, [this](Graph::NodeId nodeId) {
         m_graph.setNodePosition(nodeId, m_nodeItems.value(nodeId)->pos());
+        updateEdgeItemsForNode(nodeId);
     });
+}
+
+NodeItem *BoardScene::nodeItemAt(const QPointF &pos) const
+{
+    for (QGraphicsItem *item : items(pos)) {
+        if (auto *node = qgraphicsitem_cast<NodeItem *>(item))
+            return node;
+    }
+    return nullptr;
+}
+
+EdgeItem *BoardScene::edgeItemAt(const QPointF &pos) const
+{
+    for (QGraphicsItem *item : items(pos)) {
+        if (auto *edge = qgraphicsitem_cast<EdgeItem *>(item))
+            return edge;
+    }
+    return nullptr;
+}
+
+void BoardScene::startGhostLineFrom(NodeItem *node)
+{
+    m_lineAnchorId = node->nodeId();
+    m_ghostLine = new QGraphicsLineItem;
+    m_ghostLine->setPen(QPen(QColor("#353b3c"), 2.0, Qt::DashLine));
+    m_ghostLine->setZValue(5.0);
+    m_ghostLine->setLine(QLineF(node->pos(), node->pos()));
+    addItem(m_ghostLine);
+}
+
+void BoardScene::stopGhostLine()
+{
+    if (m_ghostLine) {
+        removeItem(m_ghostLine);
+        delete m_ghostLine;
+        m_ghostLine = nullptr;
+    }
+    m_lineAnchorId = Graph::kInvalidNodeId;
+}
+
+void BoardScene::createEdgeItem(Graph::EdgeId edgeId)
+{
+    const Graph::Edge *edge = m_graph.edge(edgeId);
+    if (!edge)
+        return;
+
+    NodeItem *a = m_nodeItems.value(edge->a);
+    NodeItem *b = m_nodeItems.value(edge->b);
+    if (!a || !b)
+        return;
+
+    auto *item = new EdgeItem(edgeId, edge->a, edge->b);
+    item->setEndpoints(a->pos(), b->pos());
+    addItem(item);
+    m_edgeItems.insert(edgeId, item);
+}
+
+void BoardScene::updateEdgeItemsForNode(Graph::NodeId nodeId)
+{
+    for (auto it = m_edgeItems.constBegin(); it != m_edgeItems.constEnd(); ++it) {
+        EdgeItem *edgeItem = it.value();
+        if (edgeItem->endpointA() != nodeId && edgeItem->endpointB() != nodeId)
+            continue;
+        NodeItem *a = m_nodeItems.value(edgeItem->endpointA());
+        NodeItem *b = m_nodeItems.value(edgeItem->endpointB());
+        if (a && b)
+            edgeItem->setEndpoints(a->pos(), b->pos());
+    }
+}
+
+void BoardScene::removeNodeVisual(Graph::NodeId nodeId)
+{
+    NodeItem *item = m_nodeItems.take(nodeId);
+    if (!item)
+        return;
+
+    for (auto it = m_edgeItems.begin(); it != m_edgeItems.end();) {
+        if (it.value()->endpointA() == nodeId || it.value()->endpointB() == nodeId) {
+            m_graph.removeEdge(it.key());
+            removeItem(it.value());
+            delete it.value();
+            it = m_edgeItems.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    m_graph.removeNode(nodeId);
+    removeItem(item);
+    delete item;
+}
+
+void BoardScene::removeEdgeVisual(Graph::EdgeId edgeId)
+{
+    m_graph.removeEdge(edgeId);
+    if (auto *item = m_edgeItems.take(edgeId)) {
+        removeItem(item);
+        delete item;
+    }
 }
 
 void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -55,12 +168,58 @@ void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    if (m_mode == Mode::AddNode) {
-        if (items(event->scenePos()).isEmpty())
-            addNodeAt(event->scenePos());
+    const QPointF pos = event->scenePos();
+
+    switch (m_mode) {
+    case Mode::AddNode: {
+        if (items(pos).isEmpty())
+            addNodeAt(pos);
+        event->accept();
+        return;
+    }
+    case Mode::AddLine: {
+        NodeItem *target = nodeItemAt(pos);
+        if (m_lineAnchorId == Graph::kInvalidNodeId) {
+            if (target) {
+                startGhostLineFrom(target);
+            } else if (m_graph.nodes().isEmpty()) {
+                addNodeAt(pos);
+                startGhostLineFrom(m_nodeItems.constBegin().value());
+            }
+        } else if (target && target->nodeId() != m_lineAnchorId) {
+            const Graph::EdgeId edgeId = m_graph.addEdge(m_lineAnchorId, target->nodeId());
+            if (edgeId != Graph::kInvalidEdgeId)
+                createEdgeItem(edgeId);
+            stopGhostLine();
+        }
+        event->accept();
+        return;
+    }
+    case Mode::Delete: {
+        if (NodeItem *node = nodeItemAt(pos))
+            removeNodeVisual(node->nodeId());
+        else if (EdgeItem *edge = edgeItemAt(pos))
+            removeEdgeVisual(edge->edgeId());
+        event->accept();
+        return;
+    }
+    case Mode::Idle:
+    case Mode::Solve:
+        break;
+    }
+
+    QGraphicsScene::mousePressEvent(event);
+}
+
+void BoardScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (m_mode == Mode::AddLine && m_ghostLine
+        && m_lineAnchorId != Graph::kInvalidNodeId) {
+        m_ghostLine->setLine(QLineF(m_nodeItems.value(m_lineAnchorId)->pos(),
+                                    event->scenePos()));
         event->accept();
         return;
     }
 
-    QGraphicsScene::mousePressEvent(event);
+    QGraphicsScene::mouseMoveEvent(event);
 }

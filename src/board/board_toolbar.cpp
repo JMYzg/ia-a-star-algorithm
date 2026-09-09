@@ -5,6 +5,9 @@
 
 namespace {
 const QString kCancelText = QStringLiteral("\u00d7");
+const QString kNodeText = QStringLiteral("Nodo");
+const QString kLineText = QStringLiteral("L\u00ednea");
+const QString kDeleteText = QStringLiteral("Borrar");
 }
 
 BoardToolbar::BoardToolbar(QWidget *parent)
@@ -17,9 +20,9 @@ BoardToolbar::BoardToolbar(QWidget *parent)
     layout->setContentsMargins(6, 6, 6, 6);
     layout->setSpacing(4);
 
-    m_nodeButton = makeButton("Nodo", "nodeButton");
-    m_lineButton = makeButton("Línea", "lineButton");
-    m_deleteButton = makeButton("Borrar", "deleteButton");
+    m_nodeButton = makeButton(kNodeText, "nodeButton");
+    m_lineButton = makeButton(kLineText, "lineButton");
+    m_deleteButton = makeButton(kDeleteText, "deleteButton");
     m_arrangeButton = makeButton("Ordenar", "arrangeButton", false);
     m_solveButton = makeButton("Resolver", "solveButton");
 
@@ -31,6 +34,8 @@ BoardToolbar::BoardToolbar(QWidget *parent)
     layout->addWidget(m_solveButton);
 
     connect(m_nodeButton, &QToolButton::toggled, this, &BoardToolbar::nodeToggled);
+    connect(m_lineButton, &QToolButton::toggled, this, &BoardToolbar::lineToggled);
+    connect(m_deleteButton, &QToolButton::toggled, this, &BoardToolbar::deleteToggled);
 }
 
 QToolButton *BoardToolbar::makeButton(const QString &text, const QString &objectName,
@@ -45,9 +50,24 @@ QToolButton *BoardToolbar::makeButton(const QString &text, const QString &object
     return button;
 }
 
+void BoardToolbar::setModeButton(QToolButton *button, bool active, const QString &idleText)
+{
+    QSignalBlocker blocker(button);
+    button->setChecked(active);
+    button->setText(active ? kCancelText : idleText);
+}
+
 void BoardToolbar::setNodeModeActive(bool active)
 {
-    QSignalBlocker blocker(m_nodeButton);
-    m_nodeButton->setChecked(active);
-    m_nodeButton->setText(active ? kCancelText : QStringLiteral("Nodo"));
+    setModeButton(m_nodeButton, active, kNodeText);
+}
+
+void BoardToolbar::setLineModeActive(bool active)
+{
+    setModeButton(m_lineButton, active, kLineText);
+}
+
+void BoardToolbar::setDeleteModeActive(bool active)
+{
+    setModeButton(m_deleteButton, active, kDeleteText);
 }

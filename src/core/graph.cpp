@@ -1,5 +1,7 @@
 #include "graph.h"
 
+#include <algorithm>
+
 QString Graph::nodeNameForIndex(int index)
 {
     QString name;
@@ -24,6 +26,9 @@ Graph::NodeId Graph::addNode(const QPointF &position)
 
 void Graph::removeNode(NodeId id)
 {
+    m_edges.erase(std::remove_if(m_edges.begin(), m_edges.end(),
+                                 [id](const Edge &e) { return e.a == id || e.b == id; }),
+                  m_edges.end());
     for (int i = 0; i < m_nodes.size(); ++i) {
         if (m_nodes[i].id == id) {
             m_nodes.removeAt(i);
@@ -73,6 +78,46 @@ void Graph::setNodePosition(NodeId id, const QPointF &position)
         n->position = position;
 }
 
+Graph::EdgeId Graph::addEdge(NodeId a, NodeId b)
+{
+    if (a == b || !hasNode(a) || !hasNode(b) || hasEdgeBetween(a, b))
+        return kInvalidEdgeId;
+    Edge edge;
+    edge.id = m_nextEdgeId++;
+    edge.a = a;
+    edge.b = b;
+    m_edges.append(edge);
+    return edge.id;
+}
+
+void Graph::removeEdge(EdgeId id)
+{
+    for (int i = 0; i < m_edges.size(); ++i) {
+        if (m_edges[i].id == id) {
+            m_edges.removeAt(i);
+            return;
+        }
+    }
+}
+
+bool Graph::hasEdgeBetween(NodeId a, NodeId b) const
+{
+    for (const Edge &e : m_edges) {
+        if ((e.a == a && e.b == b) || (e.a == b && e.b == a))
+            return true;
+    }
+    return false;
+}
+
+const Graph::Edge *Graph::edge(EdgeId id) const
+{
+    for (const Edge &e : m_edges) {
+        if (e.id == id)
+            return &e;
+    }
+    return nullptr;
+}
+
 Graph::NodeId Graph::startNodeId() const
 {
     for (const Node &n : m_nodes) {
@@ -106,4 +151,9 @@ void Graph::setGoalNode(NodeId id)
 const QVector<Graph::Node> &Graph::nodes() const
 {
     return m_nodes;
+}
+
+const QVector<Graph::Edge> &Graph::edges() const
+{
+    return m_edges;
 }

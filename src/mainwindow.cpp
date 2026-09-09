@@ -47,9 +47,13 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(splitter);
 
     connect(m_toolbar, &BoardToolbar::nodeToggled, m_scene, &BoardScene::setAddNodeMode);
+    connect(m_toolbar, &BoardToolbar::lineToggled, m_scene, &BoardScene::setAddLineMode);
+    connect(m_toolbar, &BoardToolbar::deleteToggled, m_scene, &BoardScene::setDeleteMode);
     connect(m_scene, &BoardScene::modeChanged, this, [this](BoardScene::Mode mode) {
         m_board->setPanEnabled(mode == BoardScene::Mode::Idle);
         m_toolbar->setNodeModeActive(mode == BoardScene::Mode::AddNode);
+        m_toolbar->setLineModeActive(mode == BoardScene::Mode::AddLine);
+        m_toolbar->setDeleteModeActive(mode == BoardScene::Mode::Delete);
     });
 
     auto *cancelShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);

@@ -5,7 +5,6 @@
 #include <QStyleOptionGraphicsItem>
 
 namespace {
-constexpr qreal kNodeRadius = 20.0;
 constexpr qreal kBorderWidth = 2.0;
 constexpr qreal kBoundingPad = kBorderWidth + 1.0;
 const QColor kBorderColor{QStringLiteral("#353b3c")};

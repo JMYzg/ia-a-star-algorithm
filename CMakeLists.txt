@@ -24,6 +24,7 @@ qt_add_executable(a-star-simulator
     src/board/board_scene.cpp
     src/board/board_view.cpp
     src/board/board_toolbar.cpp
+    src/board/edge_item.cpp
     src/board/node_item.cpp
     src/app.qrc
 )

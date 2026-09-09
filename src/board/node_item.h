@@ -6,6 +6,8 @@
 
 #include "core/graph.h"
 
+inline constexpr qreal kNodeRadius = 20.0;
+
 class NodeItem : public QGraphicsObject
 {
     Q_OBJECT
