@@ -20,8 +20,11 @@ qt_standard_project_setup()
 qt_add_executable(a-star-simulator
     src/main.cpp
     src/mainwindow.cpp
+    src/core/graph.cpp
+    src/board/board_scene.cpp
     src/board/board_view.cpp
     src/board/board_toolbar.cpp
+    src/board/node_item.cpp
     src/app.qrc
 )
 

@@ -11,8 +11,15 @@ class BoardToolbar : public QWidget
 public:
     explicit BoardToolbar(QWidget *parent = nullptr);
 
+public slots:
+    void setNodeModeActive(bool active);
+
+signals:
+    void nodeToggled(bool checked);
+
 private:
-    QToolButton *makeButton(const QString &text, const QString &objectName = {});
+    QToolButton *makeButton(const QString &text, const QString &objectName = {},
+                            bool checkable = true);
 
     QToolButton *m_nodeButton = nullptr;
     QToolButton *m_lineButton = nullptr;

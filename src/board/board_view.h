@@ -12,6 +12,7 @@ public:
     explicit BoardView(QWidget *parent = nullptr);
 
     void setOverlay(QWidget *overlay);
+    void setPanEnabled(bool enabled);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
@@ -25,6 +26,7 @@ private:
     void placeOverlay();
 
     QWidget *m_overlay = nullptr;
+    bool m_panEnabled = true;
     bool m_panning = false;
     QPoint m_panOrigin;
     qreal m_scale = 1.0;

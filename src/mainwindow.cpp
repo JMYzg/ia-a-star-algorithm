@@ -1,10 +1,12 @@
 #include "mainwindow.h"
 
+#include "board/board_scene.h"
 #include "board/board_toolbar.h"
 #include "board/board_view.h"
 
 #include <QFrame>
 #include <QLabel>
+#include <QShortcut>
 #include <QSplitter>
 #include <QVBoxLayout>
 
@@ -20,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_board = new BoardView;
     m_toolbar = new BoardToolbar(m_board);
     m_board->setOverlay(m_toolbar);
+
+    m_scene = new BoardScene(m_graph, this);
+    m_board->setScene(m_scene);
 
     m_sidebar = new QFrame;
     m_sidebar->setObjectName("sidebar");
@@ -40,6 +45,15 @@ MainWindow::MainWindow(QWidget *parent)
     splitter->setSizes({960, 320});
 
     setCentralWidget(splitter);
+
+    connect(m_toolbar, &BoardToolbar::nodeToggled, m_scene, &BoardScene::setAddNodeMode);
+    connect(m_scene, &BoardScene::modeChanged, this, [this](BoardScene::Mode mode) {
+        m_board->setPanEnabled(mode == BoardScene::Mode::Idle);
+        m_toolbar->setNodeModeActive(mode == BoardScene::Mode::AddNode);
+    });
+
+    auto *cancelShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(cancelShortcut, &QShortcut::activated, m_scene, &BoardScene::cancelInteraction);
 }
 
 QWidget *MainWindow::makeSidebarSection(const QString &title) const

@@ -43,6 +43,11 @@ void BoardView::placeOverlay()
     m_overlay->raise();
 }
 
+void BoardView::setPanEnabled(bool enabled)
+{
+    m_panEnabled = enabled;
+}
+
 void BoardView::applyZoom(qreal factor)
 {
     const qreal next = m_scale * factor;
@@ -66,8 +71,8 @@ void BoardView::wheelEvent(QWheelEvent *event)
 
 void BoardView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton
-        && !itemAt(event->pos())) {
+    if (event->button() == Qt::MiddleButton
+        || (event->button() == Qt::LeftButton && m_panEnabled && !itemAt(event->pos()))) {
         m_panning = true;
         m_panOrigin = event->pos();
         setCursor(Qt::ClosedHandCursor);
