@@ -1,14 +1,17 @@
 #include <QApplication>
-#include <QLabel>
+#include <QFile>
+
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QLabel window("Simulador A*");
-    window.setAlignment(Qt::AlignCenter);
-    window.setWindowTitle("Simulador A*");
-    window.resize(900, 600);
+    QFile styleFile(":/styles/app.qss");
+    if (styleFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        app.setStyleSheet(QString::fromUtf8(styleFile.readAll()));
+
+    MainWindow window;
     window.show();
 
     return app.exec();
