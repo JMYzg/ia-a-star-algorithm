@@ -3,6 +3,7 @@
 #include <QWidget>
 
 class QToolButton;
+class QButtonGroup;
 
 class BoardToolbar : public QWidget
 {
@@ -31,4 +32,5 @@ private:
     QToolButton *m_deleteButton = nullptr;
     QToolButton *m_arrangeButton = nullptr;
     QToolButton *m_solveButton = nullptr;
+    QButtonGroup *m_modeGroup = nullptr;
 };

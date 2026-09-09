@@ -42,11 +42,13 @@ void BoardScene::setMode(Mode mode)
 {
     if (m_mode == mode)
         return;
+    if (m_mode == Mode::AddLine && mode != Mode::AddLine)
+        stopGhostLine();
     m_mode = mode;
     emit modeChanged(m_mode);
 }
 
-void BoardScene::addNodeAt(const QPointF &pos)
+Graph::NodeId BoardScene::addNodeAt(const QPointF &pos)
 {
     const Graph::NodeId id = m_graph.addNode(pos);
     const Graph::Node *node = m_graph.node(id);
@@ -60,6 +62,8 @@ void BoardScene::addNodeAt(const QPointF &pos)
         m_graph.setNodePosition(nodeId, m_nodeItems.value(nodeId)->pos());
         updateEdgeItemsForNode(nodeId);
     });
+
+    return id;
 }
 
 NodeItem *BoardScene::nodeItemAt(const QPointF &pos) const
@@ -183,14 +187,21 @@ void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
             if (target) {
                 startGhostLineFrom(target);
             } else if (m_graph.nodes().isEmpty()) {
-                addNodeAt(pos);
-                startGhostLineFrom(m_nodeItems.constBegin().value());
+                const Graph::NodeId newId = addNodeAt(pos);
+                startGhostLineFrom(m_nodeItems.value(newId));
             }
         } else if (target && target->nodeId() != m_lineAnchorId) {
             const Graph::EdgeId edgeId = m_graph.addEdge(m_lineAnchorId, target->nodeId());
             if (edgeId != Graph::kInvalidEdgeId)
                 createEdgeItem(edgeId);
             stopGhostLine();
+        } else if (!target) {
+            const Graph::NodeId newId = addNodeAt(pos);
+            const Graph::EdgeId edgeId = m_graph.addEdge(m_lineAnchorId, newId);
+            if (edgeId != Graph::kInvalidEdgeId)
+                createEdgeItem(edgeId);
+            stopGhostLine();
+            startGhostLineFrom(m_nodeItems.value(newId));
         }
         event->accept();
         return;

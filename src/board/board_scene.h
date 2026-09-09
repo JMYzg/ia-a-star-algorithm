@@ -34,7 +34,7 @@ protected:
 
 private:
     void setMode(Mode mode);
-    void addNodeAt(const QPointF &pos);
+    Graph::NodeId addNodeAt(const QPointF &pos);
     NodeItem *nodeItemAt(const QPointF &pos) const;
     EdgeItem *edgeItemAt(const QPointF &pos) const;
     void startGhostLineFrom(NodeItem *node);

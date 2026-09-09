@@ -1,5 +1,6 @@
 #include "board_toolbar.h"
 
+#include <QButtonGroup>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -36,6 +37,12 @@ BoardToolbar::BoardToolbar(QWidget *parent)
     connect(m_nodeButton, &QToolButton::toggled, this, &BoardToolbar::nodeToggled);
     connect(m_lineButton, &QToolButton::toggled, this, &BoardToolbar::lineToggled);
     connect(m_deleteButton, &QToolButton::toggled, this, &BoardToolbar::deleteToggled);
+
+    m_modeGroup = new QButtonGroup(this);
+    m_modeGroup->setExclusive(true);
+    m_modeGroup->addButton(m_nodeButton);
+    m_modeGroup->addButton(m_lineButton);
+    m_modeGroup->addButton(m_deleteButton);
 }
 
 QToolButton *BoardToolbar::makeButton(const QString &text, const QString &objectName,
