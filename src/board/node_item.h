@@ -23,6 +23,7 @@ public:
     Graph::NodeId nodeId() const;
     void setName(const QString &name);
     void setColor(const QColor &color);
+    void setRole(bool isStart, bool isGoal);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -41,4 +42,6 @@ private:
     Graph::NodeId m_nodeId;
     QString m_name;
     QColor m_color;
+    bool m_isStart = false;
+    bool m_isGoal = false;
 };

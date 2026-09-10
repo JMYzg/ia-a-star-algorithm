@@ -3,6 +3,9 @@
 #include "board/board_scene.h"
 #include "board/board_toolbar.h"
 #include "board/board_view.h"
+#include "board/edge_item.h"
+#include "board/node_item.h"
+#include "sidebar/edit_box.h"
 
 #include <QFrame>
 #include <QLabel>
@@ -34,7 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
     sidebarLayout->setContentsMargins(0, 0, 0, 0);
     sidebarLayout->setSpacing(0);
 
-    sidebarLayout->addWidget(makeSidebarSection("Edit box"), 3);
+    m_editBox = new EditBox(m_graph, *m_scene);
+    sidebarLayout->addWidget(makeSidebarSection("Edit box", m_editBox), 3);
     sidebarLayout->addWidget(makeSidebarSection("Open set"), 3);
     sidebarLayout->addWidget(makeSidebarSection("Closed set"), 3);
 
@@ -56,11 +60,28 @@ MainWindow::MainWindow(QWidget *parent)
         m_toolbar->setDeleteModeActive(mode == BoardScene::Mode::Delete);
     });
 
+    connect(m_scene, &QGraphicsScene::selectionChanged, this, [this] {
+        const QList<QGraphicsItem *> selected = m_scene->selectedItems();
+        for (QGraphicsItem *item : selected) {
+            if (auto *node = qgraphicsitem_cast<NodeItem *>(item)) {
+                m_editBox->selectNode(node->nodeId());
+                return;
+            }
+        }
+        for (QGraphicsItem *item : selected) {
+            if (auto *edge = qgraphicsitem_cast<EdgeItem *>(item)) {
+                m_editBox->selectEdge(edge->edgeId());
+                return;
+            }
+        }
+        m_editBox->clearSelection();
+    });
+
     auto *cancelShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     connect(cancelShortcut, &QShortcut::activated, m_scene, &BoardScene::cancelInteraction);
 }
 
-QWidget *MainWindow::makeSidebarSection(const QString &title) const
+QWidget *MainWindow::makeSidebarSection(const QString &title, QWidget *content) const
 {
     auto *section = new QFrame;
     section->setObjectName("sidebarSection");
@@ -73,12 +94,15 @@ QWidget *MainWindow::makeSidebarSection(const QString &title) const
     titleLabel->setObjectName("sidebarSectionTitle");
     titleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-    auto *placeholder = new QLabel("-", section);
-    placeholder->setObjectName("sectionPlaceholder");
-    placeholder->setAlignment(Qt::AlignCenter);
-
     sectionLayout->addWidget(titleLabel);
-    sectionLayout->addWidget(placeholder, 1);
+    if (content) {
+        sectionLayout->addWidget(content, 1);
+    } else {
+        auto *placeholder = new QLabel("-", section);
+        placeholder->setObjectName("sectionPlaceholder");
+        placeholder->setAlignment(Qt::AlignCenter);
+        sectionLayout->addWidget(placeholder, 1);
+    }
 
     return section;
 }

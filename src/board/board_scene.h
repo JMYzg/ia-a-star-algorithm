@@ -18,6 +18,9 @@ public:
     explicit BoardScene(Graph &graph, QObject *parent = nullptr);
 
     Mode mode() const;
+    NodeItem *nodeItem(Graph::NodeId nodeId) const;
+    EdgeItem *edgeItem(Graph::EdgeId edgeId) const;
+    void refreshNodeRoles();
 
 public slots:
     void setAddNodeMode(bool active);

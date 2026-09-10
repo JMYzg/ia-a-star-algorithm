@@ -19,6 +19,7 @@ public:
     Graph::NodeId endpointB() const;
 
     void setEndpoints(const QPointF &a, const QPointF &b);
+    void setColor(const QColor &color);
 
     QRectF boundingRect() const override;
     QPainterPath shape() const override;
@@ -32,6 +33,7 @@ private:
     Graph::EdgeId m_edgeId;
     Graph::NodeId m_endpointA;
     Graph::NodeId m_endpointB;
+    QColor m_color;
     QPointF m_startPos;
     QPointF m_endPos;
     QLineF m_visibleLine;

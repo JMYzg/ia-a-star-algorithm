@@ -7,6 +7,7 @@
 
 class BoardToolbar;
 class BoardView;
+class EditBox;
 
 class MainWindow : public QMainWindow
 {
@@ -16,11 +17,12 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 private:
-    QWidget *makeSidebarSection(const QString &title) const;
+    QWidget *makeSidebarSection(const QString &title, QWidget *content = nullptr) const;
 
     Graph m_graph;
     BoardView *m_board = nullptr;
     BoardToolbar *m_toolbar = nullptr;
     BoardScene *m_scene = nullptr;
     QWidget *m_sidebar = nullptr;
+    EditBox *m_editBox = nullptr;
 };

@@ -26,6 +26,7 @@ public:
         EdgeId id = kInvalidEdgeId;
         NodeId a = kInvalidNodeId;
         NodeId b = kInvalidNodeId;
+        QColor color;
     };
 
     NodeId addNode(const QPointF &position);
@@ -42,6 +43,7 @@ public:
     void removeEdge(EdgeId id);
     bool hasEdgeBetween(NodeId a, NodeId b) const;
     const Edge *edge(EdgeId id) const;
+    void setEdgeColor(EdgeId id, const QColor &color);
 
     NodeId startNodeId() const;
     void setStartNode(NodeId id);

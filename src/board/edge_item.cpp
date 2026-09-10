@@ -22,9 +22,18 @@ EdgeItem::EdgeItem(Graph::EdgeId edgeId, Graph::NodeId a, Graph::NodeId b)
     : m_edgeId(edgeId)
     , m_endpointA(a)
     , m_endpointB(b)
+    , m_color(QColor("#353b3c"))
 {
     setZValue(1.0);
     setAcceptedMouseButtons(Qt::LeftButton);
+}
+
+void EdgeItem::setColor(const QColor &color)
+{
+    if (m_color == color)
+        return;
+    m_color = color;
+    update();
 }
 
 Graph::EdgeId EdgeItem::edgeId() const
@@ -115,7 +124,7 @@ void EdgeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 
     painter->setRenderHint(QPainter::Antialiasing);
 
-    painter->setPen(QPen(kLineColor, kBorderWidth));
+    painter->setPen(QPen(m_color, kBorderWidth));
     painter->drawLine(m_visibleLine);
 
     painter->setPen(QPen(kLineColor, 1.0));

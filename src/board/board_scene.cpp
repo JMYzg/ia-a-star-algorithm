@@ -16,6 +16,25 @@ BoardScene::Mode BoardScene::mode() const
     return m_mode;
 }
 
+NodeItem *BoardScene::nodeItem(Graph::NodeId nodeId) const
+{
+    return m_nodeItems.value(nodeId);
+}
+
+EdgeItem *BoardScene::edgeItem(Graph::EdgeId edgeId) const
+{
+    return m_edgeItems.value(edgeId);
+}
+
+void BoardScene::refreshNodeRoles()
+{
+    for (auto it = m_nodeItems.constBegin(); it != m_nodeItems.constEnd(); ++it) {
+        const Graph::Node *node = m_graph.node(it.key());
+        if (node)
+            it.value()->setRole(node->isStart, node->isGoal);
+    }
+}
+
 void BoardScene::setAddNodeMode(bool active)
 {
     setMode(active ? Mode::AddNode : Mode::Idle);

@@ -6,9 +6,14 @@
 
 namespace {
 constexpr qreal kBorderWidth = 2.0;
-constexpr qreal kBoundingPad = kBorderWidth + 1.0;
+constexpr qreal kRoleRingWidth = 2.0;
+constexpr qreal kStartRingGap = 3.0;
+constexpr qreal kGoalRingGap = 6.0;
+constexpr qreal kBoundingPad = 9.0;
 const QColor kBorderColor{QStringLiteral("#353b3c")};
 const QColor kTextColor{QStringLiteral("#353b3c")};
+const QColor kStartRingColor{QStringLiteral("#846a6a")};
+const QColor kGoalRingColor{QStringLiteral("#a2999e")};
 }
 
 NodeItem::NodeItem(Graph::NodeId nodeId, const QString &name, const QColor &color,
@@ -43,6 +48,15 @@ void NodeItem::setColor(const QColor &color)
     update();
 }
 
+void NodeItem::setRole(bool isStart, bool isGoal)
+{
+    if (m_isStart == isStart && m_isGoal == isGoal)
+        return;
+    m_isStart = isStart;
+    m_isGoal = isGoal;
+    update();
+}
+
 QRectF NodeItem::boundingRect() const
 {
     const qreal r = kNodeRadius + kBoundingPad;
@@ -71,6 +85,18 @@ void NodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     painter->setPen(pen);
     painter->setBrush(m_color);
     painter->drawEllipse(QPointF(0, 0), kNodeRadius, kNodeRadius);
+
+    painter->setBrush(Qt::NoBrush);
+    if (m_isStart) {
+        painter->setPen(QPen(kStartRingColor, kRoleRingWidth));
+        painter->drawEllipse(QPointF(0, 0), kNodeRadius + kStartRingGap,
+                             kNodeRadius + kStartRingGap);
+    }
+    if (m_isGoal) {
+        painter->setPen(QPen(kGoalRingColor, kRoleRingWidth, Qt::DashLine));
+        painter->drawEllipse(QPointF(0, 0), kNodeRadius + kGoalRingGap,
+                             kNodeRadius + kGoalRingGap);
+    }
 
     QFont font = painter->font();
     font.setPointSizeF(10.0);

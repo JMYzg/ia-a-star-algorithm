@@ -86,6 +86,7 @@ Graph::EdgeId Graph::addEdge(NodeId a, NodeId b)
     edge.id = m_nextEdgeId++;
     edge.a = a;
     edge.b = b;
+    edge.color = QColor("#353b3c");
     m_edges.append(edge);
     return edge.id;
 }
@@ -116,6 +117,16 @@ const Graph::Edge *Graph::edge(EdgeId id) const
             return &e;
     }
     return nullptr;
+}
+
+void Graph::setEdgeColor(EdgeId id, const QColor &color)
+{
+    for (Edge &e : m_edges) {
+        if (e.id == id) {
+            e.color = color;
+            return;
+        }
+    }
 }
 
 Graph::NodeId Graph::startNodeId() const
