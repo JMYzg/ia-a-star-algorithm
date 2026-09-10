@@ -186,7 +186,7 @@ void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         if (m_lineAnchorId == Graph::kInvalidNodeId) {
             if (target) {
                 startGhostLineFrom(target);
-            } else if (m_graph.nodes().isEmpty()) {
+            } else {
                 const Graph::NodeId newId = addNodeAt(pos);
                 startGhostLineFrom(m_nodeItems.value(newId));
             }

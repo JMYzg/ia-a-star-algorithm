@@ -1,6 +1,5 @@
 #include "board_toolbar.h"
 
-#include <QButtonGroup>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -34,15 +33,21 @@ BoardToolbar::BoardToolbar(QWidget *parent)
     layout->addSpacing(6);
     layout->addWidget(m_solveButton);
 
-    connect(m_nodeButton, &QToolButton::toggled, this, &BoardToolbar::nodeToggled);
-    connect(m_lineButton, &QToolButton::toggled, this, &BoardToolbar::lineToggled);
-    connect(m_deleteButton, &QToolButton::toggled, this, &BoardToolbar::deleteToggled);
-
-    m_modeGroup = new QButtonGroup(this);
-    m_modeGroup->setExclusive(true);
-    m_modeGroup->addButton(m_nodeButton);
-    m_modeGroup->addButton(m_lineButton);
-    m_modeGroup->addButton(m_deleteButton);
+    connect(m_nodeButton, &QToolButton::toggled, this, [this](bool checked) {
+        if (checked)
+            uncheckOthersSilently(m_nodeButton);
+        emit nodeToggled(checked);
+    });
+    connect(m_lineButton, &QToolButton::toggled, this, [this](bool checked) {
+        if (checked)
+            uncheckOthersSilently(m_lineButton);
+        emit lineToggled(checked);
+    });
+    connect(m_deleteButton, &QToolButton::toggled, this, [this](bool checked) {
+        if (checked)
+            uncheckOthersSilently(m_deleteButton);
+        emit deleteToggled(checked);
+    });
 }
 
 QToolButton *BoardToolbar::makeButton(const QString &text, const QString &objectName,
@@ -62,6 +67,16 @@ void BoardToolbar::setModeButton(QToolButton *button, bool active, const QString
     QSignalBlocker blocker(button);
     button->setChecked(active);
     button->setText(active ? kCancelText : idleText);
+}
+
+void BoardToolbar::uncheckOthersSilently(QToolButton *active)
+{
+    for (QToolButton *button : { m_nodeButton, m_lineButton, m_deleteButton }) {
+        if (button == active)
+            continue;
+        QSignalBlocker blocker(button);
+        button->setChecked(false);
+    }
 }
 
 void BoardToolbar::setNodeModeActive(bool active)
