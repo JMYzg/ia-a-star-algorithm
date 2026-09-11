@@ -4,6 +4,17 @@
 #include "node_item.h"
 
 #include <QGraphicsSceneMouseEvent>
+#include <QVariantAnimation>
+
+#include <algorithm>
+
+namespace {
+constexpr qreal kIdealDistance = 110.0;
+constexpr int kArrangeIterations = 300;
+constexpr qreal kArrangeStartTemp = 70.0;
+constexpr qreal kArrangeTempDecay = 0.95;
+constexpr int kArrangeDurationMs = 400;
+}
 
 BoardScene::BoardScene(Graph &graph, QObject *parent)
     : QGraphicsScene(parent)
@@ -182,6 +193,91 @@ void BoardScene::removeEdgeVisual(Graph::EdgeId edgeId)
         removeItem(item);
         delete item;
     }
+}
+
+void BoardScene::arrangeNodes()
+{
+    if (m_arrangeAnimation && m_arrangeAnimation->state() == QAbstractAnimation::Running)
+        return;
+    const QVector<Graph::Node> nodes = m_graph.nodes();
+    if (nodes.size() < 2)
+        return;
+
+    const int count = nodes.size();
+    QHash<Graph::NodeId, int> index;
+    QVector<QPointF> pos(count);
+    QPointF originalCentroid(0, 0);
+    for (int i = 0; i < count; ++i) {
+        index.insert(nodes[i].id, i);
+        pos[i] = nodes[i].position;
+        originalCentroid += nodes[i].position;
+    }
+    originalCentroid /= count;
+
+    qreal temp = kArrangeStartTemp;
+    for (int iter = 0; iter < kArrangeIterations && temp > 0.5; ++iter) {
+        QVector<QPointF> disp(count);
+        for (int i = 0; i < count; ++i) {
+            for (int j = i + 1; j < count; ++j) {
+                const QPointF delta = pos[i] - pos[j];
+                const qreal dist = std::max(QLineF(QPointF(0, 0), delta).length(), 0.01);
+                const qreal force = (kIdealDistance * kIdealDistance) / dist;
+                const QPointF unit = delta / dist;
+                disp[i] += unit * force;
+                disp[j] -= unit * force;
+            }
+        }
+        for (const Graph::Edge &edge : m_graph.edges()) {
+            const int a = index.value(edge.a, -1);
+            const int b = index.value(edge.b, -1);
+            if (a < 0 || b < 0)
+                continue;
+            const QPointF delta = pos[a] - pos[b];
+            const qreal dist = std::max(QLineF(QPointF(0, 0), delta).length(), 0.01);
+            const qreal force = (dist * dist) / kIdealDistance;
+            const QPointF unit = delta / dist;
+            disp[a] -= unit * force;
+            disp[b] += unit * force;
+        }
+        for (int i = 0; i < count; ++i) {
+            const qreal len = QLineF(QPointF(0, 0), disp[i]).length();
+            if (len > temp)
+                disp[i] = disp[i] / len * temp;
+            pos[i] += disp[i];
+        }
+        QPointF centroid(0, 0);
+        for (int i = 0; i < count; ++i)
+            centroid += pos[i];
+        centroid /= count;
+        const QPointF correction = centroid - originalCentroid;
+        for (int i = 0; i < count; ++i)
+            pos[i] -= correction;
+        temp *= kArrangeTempDecay;
+    }
+
+    QHash<Graph::NodeId, QPointF> startPositions;
+    QHash<Graph::NodeId, QPointF> endPositions;
+    for (int i = 0; i < count; ++i) {
+        startPositions.insert(nodes[i].id, nodes[i].position);
+        endPositions.insert(nodes[i].id, pos[i]);
+    }
+
+    m_arrangeAnimation = new QVariantAnimation(this);
+    m_arrangeAnimation->setDuration(kArrangeDurationMs);
+    m_arrangeAnimation->setEasingCurve(QEasingCurve::OutCubic);
+    m_arrangeAnimation->setStartValue(0.0);
+    m_arrangeAnimation->setEndValue(1.0);
+    connect(m_arrangeAnimation, &QVariantAnimation::valueChanged, this,
+            [this, startPositions, endPositions](const QVariant &value) {
+                const qreal t = value.toReal();
+                for (auto it = endPositions.constBegin(); it != endPositions.constEnd(); ++it) {
+                    if (NodeItem *item = m_nodeItems.value(it.key())) {
+                        const QPointF start = startPositions.value(it.key());
+                        item->setPos(start + (it.value() - start) * t);
+                    }
+                }
+            });
+    m_arrangeAnimation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)

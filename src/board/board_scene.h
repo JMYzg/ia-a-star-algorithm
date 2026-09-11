@@ -2,6 +2,8 @@
 
 #include <QGraphicsScene>
 #include <QHash>
+#include <QPointer>
+#include <QVariantAnimation>
 
 #include "core/graph.h"
 
@@ -27,6 +29,7 @@ public slots:
     void setAddLineMode(bool active);
     void setDeleteMode(bool active);
     void cancelInteraction();
+    void arrangeNodes();
 
 signals:
     void modeChanged(BoardScene::Mode mode);
@@ -53,4 +56,5 @@ private:
     QHash<Graph::EdgeId, EdgeItem *> m_edgeItems;
     Graph::NodeId m_lineAnchorId = Graph::kInvalidNodeId;
     QGraphicsLineItem *m_ghostLine = nullptr;
+    QPointer<QVariantAnimation> m_arrangeAnimation;
 };

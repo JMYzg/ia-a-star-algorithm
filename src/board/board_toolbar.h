@@ -20,6 +20,7 @@ signals:
     void nodeToggled(bool checked);
     void lineToggled(bool checked);
     void deleteToggled(bool checked);
+    void arrangeClicked();
 
 private:
     QToolButton *makeButton(const QString &text, const QString &objectName = {},

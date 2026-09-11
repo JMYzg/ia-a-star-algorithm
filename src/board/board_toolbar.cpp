@@ -48,6 +48,7 @@ BoardToolbar::BoardToolbar(QWidget *parent)
             uncheckOthersSilently(m_deleteButton);
         emit deleteToggled(checked);
     });
+    connect(m_arrangeButton, &QToolButton::clicked, this, &BoardToolbar::arrangeClicked);
 }
 
 QToolButton *BoardToolbar::makeButton(const QString &text, const QString &objectName,
