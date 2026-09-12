@@ -1,43 +1,16 @@
 #include "set_table.h"
 
+#include <QEvent>
 #include <QHeaderView>
-#include <QPainter>
+#include <QLabel>
+#include <QResizeEvent>
 #include <QTableWidget>
 #include <QVBoxLayout>
 
 namespace {
 const QColor kHighlightBackground{QStringLiteral("#353b3c")};
 const QColor kHighlightForeground{QStringLiteral("#eef0f2")};
-const QColor kEmptyHintColor{QStringLiteral("#a2999e")};
 }
-
-class HintTable : public QTableWidget
-{
-public:
-    HintTable(int rows, int columns, const QString &emptyHint, QWidget *parent)
-        : QTableWidget(rows, columns, parent)
-        , m_emptyHint(emptyHint)
-    {
-    }
-
-protected:
-    void paintEvent(QPaintEvent *event) override
-    {
-        QTableWidget::paintEvent(event);
-        if (rowCount() > 0)
-            return;
-        QPainter painter(this);
-        painter.setPen(kEmptyHintColor);
-        QFont font = painter.font();
-        font.setPointSizeF(10.0);
-        font.setItalic(true);
-        painter.setFont(font);
-        painter.drawText(rect().adjusted(12, 12, -12, -12), Qt::AlignCenter, m_emptyHint);
-    }
-
-private:
-    QString m_emptyHint;
-};
 
 SetTable::SetTable(Graph &graph, bool withCostColumn, const QString &emptyHint, QWidget *parent)
     : QWidget(parent)
@@ -47,7 +20,7 @@ SetTable::SetTable(Graph &graph, bool withCostColumn, const QString &emptyHint, 
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    m_table = new HintTable(0, withCostColumn ? 3 : 2, emptyHint, this);
+    m_table = new QTableWidget(0, withCostColumn ? 3 : 2, this);
     QStringList headers{QStringLiteral("N"), QStringLiteral("Father")};
     if (withCostColumn)
         headers << QStringLiteral("f()");
@@ -60,6 +33,29 @@ SetTable::SetTable(Graph &graph, bool withCostColumn, const QString &emptyHint, 
     m_table->horizontalHeader()->setSectionsClickable(false);
 
     layout->addWidget(m_table);
+
+    m_hintLabel = new QLabel(emptyHint, m_table->viewport());
+    m_hintLabel->setObjectName("emptyHint");
+    m_hintLabel->setAlignment(Qt::AlignCenter);
+    m_hintLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_hintLabel->setGeometry(m_table->viewport()->rect());
+    m_hintLabel->show();
+    m_table->viewport()->installEventFilter(this);
+}
+
+bool SetTable::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == m_table->viewport() && event->type() == QEvent::Resize) {
+        auto *resizeEvent = static_cast<QResizeEvent *>(event);
+        m_hintLabel->setGeometry(QRect(QPoint(0, 0), resizeEvent->size()));
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
+void SetTable::updateHint()
+{
+    m_hintLabel->setVisible(m_table->rowCount() == 0);
+    m_hintLabel->raise();
 }
 
 QString SetTable::displayName(Graph::NodeId nodeId) const
@@ -71,6 +67,7 @@ QString SetTable::displayName(Graph::NodeId nodeId) const
 void SetTable::showNodes(const QList<Graph::NodeId> &nodeIds, const AStarStep &step)
 {
     m_table->setRowCount(nodeIds.size());
+    updateHint();
     for (int row = 0; row < nodeIds.size(); ++row) {
         const Graph::NodeId nodeId = nodeIds[row];
 
@@ -103,4 +100,5 @@ void SetTable::showNodes(const QList<Graph::NodeId> &nodeIds, const AStarStep &s
 void SetTable::clearRows()
 {
     m_table->setRowCount(0);
+    updateHint();
 }

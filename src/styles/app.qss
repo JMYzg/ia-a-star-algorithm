@@ -81,6 +81,12 @@ QSplitter::handle {
     background: #353b3c;
 }
 
+#emptyHint {
+    background: transparent;
+    color: #a2999e;
+    font-style: italic;
+}
+
 QTableWidget {
     background: #eef0f2;
     border: none;
