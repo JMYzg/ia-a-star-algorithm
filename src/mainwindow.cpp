@@ -10,8 +10,11 @@
 #include "sidebar/set_table.h"
 #include "solve/step_player.h"
 
+#include <QApplication>
 #include <QFrame>
+#include <QKeyEvent>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QShortcut>
 #include <QSplitter>
@@ -55,8 +58,10 @@ MainWindow::MainWindow(QWidget *parent)
     sidebarLayout->setSpacing(0);
 
     m_editBox = new EditBox(m_graph, *m_scene);
-    m_openTable = new SetTable(m_graph, true);
-    m_closedTable = new SetTable(m_graph, false);
+    m_openTable = new SetTable(m_graph, true,
+                               QStringLiteral("Aparece al resolver el grafo"));
+    m_closedTable = new SetTable(m_graph, false,
+                                 QStringLiteral("Aparece al resolver el grafo"));
     sidebarLayout->addWidget(makeSidebarSection("Edit box", m_editBox), 3);
     sidebarLayout->addWidget(makeSidebarSection("Open set", m_openTable), 3);
     sidebarLayout->addWidget(makeSidebarSection("Closed set", m_closedTable), 3);
@@ -101,7 +106,12 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     auto *cancelShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(cancelShortcut, &QShortcut::activated, m_scene, &BoardScene::cancelInteraction);
+    connect(cancelShortcut, &QShortcut::activated, this, [this] {
+        if (m_player->isActive())
+            m_player->stop();
+        else
+            m_scene->cancelInteraction();
+    });
 
     m_player = new StepPlayer(this);
     connect(m_toolbar, &BoardToolbar::solveToggled, this, [this](bool checked) {
@@ -113,6 +123,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_player, &StepPlayer::started, this, [this] {
         m_progressBar->reset();
         m_progressBar->setVisible(true);
+        m_editBox->clearSelection();
         m_scene->setSolveMode(true);
     });
     connect(m_player, &StepPlayer::stopped, this, [this] {
@@ -139,13 +150,43 @@ MainWindow::MainWindow(QWidget *parent)
         m_toolbar->setSolveModeActive(false);
     });
     connect(m_player, &StepPlayer::runFinished, this, [this](bool found) {
-        if (found)
+        if (found) {
+            m_scene->highlightPath(m_player->path());
             statusBar()->showMessage(QStringLiteral("Camino encontrado"), 4000);
+        }
     });
     connect(m_player, &StepPlayer::autoRunningChanged, m_toolbar, &BoardToolbar::setAutoRunning);
     connect(m_toolbar, &BoardToolbar::continueClicked, m_player, &StepPlayer::next);
     connect(m_toolbar, &BoardToolbar::rewindClicked, m_player, &StepPlayer::previous);
     connect(m_toolbar, &BoardToolbar::autoToggled, m_player, &StepPlayer::setAutoRunning);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    const QWidget *focus = QApplication::focusWidget();
+    const bool editingText = qobject_cast<const QLineEdit *>(focus) != nullptr;
+
+    if (m_player->isActive() && !editingText) {
+        switch (event->key()) {
+        case Qt::Key_Space:
+        case Qt::Key_Right:
+            m_player->next();
+            return;
+        case Qt::Key_Left:
+        case Qt::Key_Backspace:
+            m_player->previous();
+            return;
+        default:
+            break;
+        }
+    }
+
+    if (event->key() == Qt::Key_Delete && m_scene->mode() == BoardScene::Mode::Idle) {
+        m_scene->deleteSelection();
+        return;
+    }
+
+    QMainWindow::keyPressEvent(event);
 }
 
 QWidget *MainWindow::makeSidebarSection(const QString &title, QWidget *content) const

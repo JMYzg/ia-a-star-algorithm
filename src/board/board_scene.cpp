@@ -65,6 +65,37 @@ void BoardScene::clearSolveState()
 {
     for (auto it = m_nodeItems.constBegin(); it != m_nodeItems.constEnd(); ++it)
         it.value()->setSolveVisual(NodeItem::SolveVisual::None);
+    for (auto it = m_edgeItems.constBegin(); it != m_edgeItems.constEnd(); ++it)
+        it.value()->setHighlight(false);
+}
+
+void BoardScene::highlightPath(const QList<Graph::NodeId> &path)
+{
+    for (int i = 0; i + 1 < path.size(); ++i) {
+        for (auto it = m_edgeItems.constBegin(); it != m_edgeItems.constEnd(); ++it) {
+            EdgeItem *edgeItem = it.value();
+            const bool matches =
+                (edgeItem->endpointA() == path[i] && edgeItem->endpointB() == path[i + 1])
+                || (edgeItem->endpointA() == path[i + 1] && edgeItem->endpointB() == path[i]);
+            if (matches) {
+                edgeItem->setHighlight(true);
+                break;
+            }
+        }
+    }
+}
+
+void BoardScene::deleteSelection()
+{
+    if (m_mode != Mode::Idle)
+        return;
+    const QList<QGraphicsItem *> selected = selectedItems();
+    for (QGraphicsItem *item : selected) {
+        if (auto *node = qgraphicsitem_cast<NodeItem *>(item))
+            removeNodeVisual(node->nodeId());
+        else if (auto *edge = qgraphicsitem_cast<EdgeItem *>(item))
+            removeEdgeVisual(edge->edgeId());
+    }
 }
 
 void BoardScene::setAddNodeMode(bool active)

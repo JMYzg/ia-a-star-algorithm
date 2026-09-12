@@ -124,6 +124,11 @@ void NodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     QFont font = painter->font();
     font.setPointSizeF(10.0);
     font.setBold(true);
+    QFontMetrics metrics(font);
+    const qreal maxWidth = 2.0 * (kNodeRadius - 5.0);
+    const qreal nameWidth = metrics.horizontalAdvance(m_name);
+    if (nameWidth > maxWidth && nameWidth > 0)
+        font.setPointSizeF(font.pointSizeF() * maxWidth / nameWidth);
     painter->setFont(font);
     painter->setPen(textColor);
     painter->drawText(boundingRect(), Qt::AlignCenter, m_name);

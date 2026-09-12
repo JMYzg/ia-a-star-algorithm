@@ -73,6 +73,8 @@ QSplitter::handle {
 #solveProgressBar {
     background: #c6c7c4;
     border: none;
+    color: #eef0f2;
+    font-weight: bold;
 }
 
 #solveProgressBar::chunk {

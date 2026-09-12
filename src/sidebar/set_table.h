@@ -12,7 +12,8 @@ class SetTable : public QWidget
     Q_OBJECT
 
 public:
-    explicit SetTable(Graph &graph, bool withCostColumn, QWidget *parent = nullptr);
+    explicit SetTable(Graph &graph, bool withCostColumn, const QString &emptyHint,
+                      QWidget *parent = nullptr);
 
 public slots:
     void showNodes(const QList<Graph::NodeId> &nodeIds, const AStarStep &step);

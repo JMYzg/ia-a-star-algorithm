@@ -4,19 +4,34 @@ Aplicación de escritorio en C++ con Qt 6 que simula de forma interactiva el alg
 (A-star) sobre un grafo construido por el usuario: nodos, aristas y pesos editables, con
 resolución paso a paso.
 
-## Características (planeadas)
+## Características
 
-- Editor de grafos: crear, mover y eliminar nodos y aristas, asignar pesos
-- Selección de nodo origen y destino
-- Ejecución paso a paso del algoritmo A* mostrando la frontera (open set) y los visitados (closed set)
-- Visualización de costes por nodo (g, h, f)
+- Editor de grafos: crear, mover, renombrar, colorear y eliminar nodos y aristas
+- Pesos calculados automáticamente por distancia entre nodos (1 decimal)
+- Selección de nodo inicio y destino (exclusivos)
+- Botón ordenar: reacomoda los nodos sin solapamiento (relajación Fruchterman-Reingold)
+- Ejecución paso a paso del algoritmo A* (h = distancia euclídea al destino) con:
+  - Resaltado de frontera (abierta), visitados (cerrada) y nodo actual
+  - Tablas de lista abierta (N, Father, f()) y cerrada (N, Father)
+  - Barra de progreso animada (ease) y modo auto con avance continuo
+  - Resaltado del camino final encontrado
+- Zoom con rueda y pan arrastrando el board (o botón medio)
+
+## Atajos de teclado
+
+| Tecla | Acción |
+|---|---|
+| Espacio / → | Siguiente paso (en modo Resolver) |
+| Retroceso / ← | Paso anterior |
+| Supr | Eliminar selección |
+| Esc | Cancelar modo / detener resolución |
 
 ## Requisitos
 
 - Compilador con soporte C++20 (GCC/Clang/MSVC)
 - CMake 3.21 o superior
 - Ninja (recomendado) o Make
-- Qt 6.5 o superior (módulo Widgets)
+- Qt 6.5 o superior (módulos Core, Gui, Widgets)
 
 En Arch Linux:
 
@@ -35,4 +50,17 @@ cmake --build build
 
 ```bash
 ./build/a-star-simulator
+```
+
+## Tests
+
+Suite de tests del motor A* (rutas, empates, relajación, validaciones):
+
+```bash
+./build/a-star-tests
+```
+o
+
+```bash
+ctest --test-dir build
 ```

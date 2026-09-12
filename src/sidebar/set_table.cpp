@@ -1,15 +1,45 @@
 #include "set_table.h"
 
 #include <QHeaderView>
+#include <QPainter>
 #include <QTableWidget>
 #include <QVBoxLayout>
 
 namespace {
 const QColor kHighlightBackground{QStringLiteral("#353b3c")};
 const QColor kHighlightForeground{QStringLiteral("#eef0f2")};
+const QColor kEmptyHintColor{QStringLiteral("#a2999e")};
 }
 
-SetTable::SetTable(Graph &graph, bool withCostColumn, QWidget *parent)
+class HintTable : public QTableWidget
+{
+public:
+    HintTable(int rows, int columns, const QString &emptyHint, QWidget *parent)
+        : QTableWidget(rows, columns, parent)
+        , m_emptyHint(emptyHint)
+    {
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        QTableWidget::paintEvent(event);
+        if (rowCount() > 0)
+            return;
+        QPainter painter(this);
+        painter.setPen(kEmptyHintColor);
+        QFont font = painter.font();
+        font.setPointSizeF(10.0);
+        font.setItalic(true);
+        painter.setFont(font);
+        painter.drawText(rect().adjusted(12, 12, -12, -12), Qt::AlignCenter, m_emptyHint);
+    }
+
+private:
+    QString m_emptyHint;
+};
+
+SetTable::SetTable(Graph &graph, bool withCostColumn, const QString &emptyHint, QWidget *parent)
     : QWidget(parent)
     , m_graph(graph)
 {
@@ -17,7 +47,7 @@ SetTable::SetTable(Graph &graph, bool withCostColumn, QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    m_table = new QTableWidget(0, withCostColumn ? 3 : 2, this);
+    m_table = new HintTable(0, withCostColumn ? 3 : 2, emptyHint, this);
     QStringList headers{QStringLiteral("N"), QStringLiteral("Father")};
     if (withCostColumn)
         headers << QStringLiteral("f()");

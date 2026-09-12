@@ -19,6 +19,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
 private:
     QWidget *makeSidebarSection(const QString &title, QWidget *content = nullptr) const;
 

@@ -22,6 +22,7 @@ public:
     int stepCount() const;
     const AStarStep &currentStep() const;
     bool foundPath() const;
+    QList<Graph::NodeId> path() const;
     bool isAutoRunning() const;
 
 public slots:
@@ -39,6 +40,7 @@ signals:
 
 private:
     QList<AStarStep> m_steps;
+    QList<Graph::NodeId> m_path;
     int m_index = -1;
     bool m_autoRunning = false;
     QTimer m_autoTimer;

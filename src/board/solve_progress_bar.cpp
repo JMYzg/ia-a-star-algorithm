@@ -7,8 +7,10 @@
 SolveProgressBar::SolveProgressBar(QWidget *parent)
     : QProgressBar(parent)
 {
-    setTextVisible(false);
-    setFixedHeight(16);
+    setTextVisible(true);
+    setFormat(QStringLiteral("Paso %v / %m"));
+    setAlignment(Qt::AlignCenter);
+    setFixedHeight(18);
     m_animation = new QPropertyAnimation(this, "value", this);
     m_animation->setDuration(250);
     m_animation->setEasingCurve(QEasingCurve::InOutCubic);

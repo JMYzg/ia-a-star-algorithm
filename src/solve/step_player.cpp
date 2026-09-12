@@ -30,6 +30,7 @@ void StepPlayer::start(const Graph &graph, Graph::NodeId startId, Graph::NodeId 
     }
 
     m_steps = engine.steps();
+    m_path = engine.path();
     m_index = -1;
     emit started();
     next();
@@ -39,6 +40,7 @@ void StepPlayer::stop()
 {
     m_autoTimer.stop();
     m_steps.clear();
+    m_path.clear();
     m_index = -1;
     if (m_autoRunning) {
         m_autoRunning = false;
@@ -73,6 +75,11 @@ const AStarStep &StepPlayer::currentStep() const
 bool StepPlayer::foundPath() const
 {
     return !m_steps.isEmpty() && m_steps.last().goalReached;
+}
+
+QList<Graph::NodeId> StepPlayer::path() const
+{
+    return m_path;
 }
 
 bool StepPlayer::isAutoRunning() const

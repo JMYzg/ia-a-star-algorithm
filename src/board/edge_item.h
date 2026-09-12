@@ -20,6 +20,7 @@ public:
 
     void setEndpoints(const QPointF &a, const QPointF &b);
     void setColor(const QColor &color);
+    void setHighlight(bool highlighted);
 
     QRectF boundingRect() const override;
     QPainterPath shape() const override;
@@ -34,6 +35,7 @@ private:
     Graph::NodeId m_endpointA;
     Graph::NodeId m_endpointB;
     QColor m_color;
+    bool m_highlighted = false;
     QPointF m_startPos;
     QPointF m_endPos;
     QLineF m_visibleLine;

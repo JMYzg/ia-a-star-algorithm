@@ -16,6 +16,8 @@ constexpr qreal kHitWidth = 12.0;
 const QColor kLineColor{QStringLiteral("#353b3c")};
 const QColor kLabelBackground{QStringLiteral("#eef0f2")};
 const QColor kLabelTextColor{QStringLiteral("#353b3c")};
+const QColor kHighlightColor{QStringLiteral("#846a6a")};
+constexpr qreal kHighlightWidth = 3.0;
 }
 
 EdgeItem::EdgeItem(Graph::EdgeId edgeId, Graph::NodeId a, Graph::NodeId b)
@@ -33,6 +35,14 @@ void EdgeItem::setColor(const QColor &color)
     if (m_color == color)
         return;
     m_color = color;
+    update();
+}
+
+void EdgeItem::setHighlight(bool highlighted)
+{
+    if (m_highlighted == highlighted)
+        return;
+    m_highlighted = highlighted;
     update();
 }
 
@@ -124,7 +134,8 @@ void EdgeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 
     painter->setRenderHint(QPainter::Antialiasing);
 
-    painter->setPen(QPen(m_color, kBorderWidth));
+    painter->setPen(QPen(m_highlighted ? kHighlightColor : m_color,
+                         m_highlighted ? kHighlightWidth : kBorderWidth));
     painter->drawLine(m_visibleLine);
 
     painter->setPen(QPen(kLineColor, 1.0));

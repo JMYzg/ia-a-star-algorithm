@@ -26,6 +26,8 @@ public:
     void refreshNodeRoles();
     void applySolveState(const AStarStep &step);
     void clearSolveState();
+    void highlightPath(const QList<Graph::NodeId> &path);
+    void deleteSelection();
 
 public slots:
     void setAddNodeMode(bool active);

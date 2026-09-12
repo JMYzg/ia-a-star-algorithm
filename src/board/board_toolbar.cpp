@@ -63,6 +63,22 @@ BoardToolbar::BoardToolbar(QWidget *parent)
     connect(m_continueButton, &QToolButton::clicked, this, &BoardToolbar::continueClicked);
     connect(m_rewindButton, &QToolButton::clicked, this, &BoardToolbar::rewindClicked);
     connect(m_autoButton, &QToolButton::toggled, this, &BoardToolbar::autoToggled);
+
+    m_nodeButton->setToolTip(QStringLiteral("A\u00f1adir nodos: clic en el board para crear"));
+    m_lineButton->setToolTip(
+        QStringLiteral("Conectar nodos: clic en origen, luego en destino"));
+    m_deleteButton->setToolTip(
+        QStringLiteral("Eliminar: clic sobre un nodo o una l\u00ednea"));
+    m_arrangeButton->setToolTip(
+        QStringLiteral("Reacomodar nodos sin solapamiento"));
+    m_solveButton->setToolTip(QStringLiteral("Ejecutar A* paso a paso"));
+    m_continueButton->setToolTip(QStringLiteral("Siguiente paso (Espacio)"));
+    m_rewindButton->setToolTip(QStringLiteral("Paso anterior (Retroceso)"));
+    m_autoButton->setToolTip(QStringLiteral("Avance autom\u00e1tico"));
+
+    for (QToolButton *button : { m_nodeButton, m_lineButton, m_deleteButton, m_arrangeButton,
+                                 m_solveButton, m_continueButton, m_rewindButton, m_autoButton })
+        button->setFocusPolicy(Qt::NoFocus);
 }
 
 QToolButton *BoardToolbar::makeButton(const QString &text, const QString &objectName,
