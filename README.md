@@ -52,6 +52,19 @@ cmake --build build
 ./build/a-star-simulator
 ```
 
+En WSL2 con WSLg (Windows 11, o Windows 10 con `wsl --update`) la ventana aparece
+directamente en el escritorio de Windows.
+
+### Prerequisitos por distro
+
+| Distro | Comando |
+|---|---|
+| Ubuntu/Debian | `sudo apt install build-essential cmake ninja-build qt6-base-dev fonts-noto-core` |
+| Arch | `sudo pacman -S --needed base-devel cmake ninja qt6-base noto-fonts` |
+| Fedora | `sudo dnf install gcc-c++ cmake ninja-build qt6-qtbase-devel google-noto-sans-fonts` |
+
+El paquete de fuentes es obligatorio: sin fuentes instaladas Qt no puede renderizar texto.
+
 ## Tests
 
 Suite de tests del motor A* (rutas, empates, relajación, validaciones):
