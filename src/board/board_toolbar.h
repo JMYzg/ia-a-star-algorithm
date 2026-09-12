@@ -15,12 +15,18 @@ public slots:
     void setNodeModeActive(bool active);
     void setLineModeActive(bool active);
     void setDeleteModeActive(bool active);
+    void setSolveModeActive(bool active);
+    void setAutoRunning(bool running);
 
 signals:
     void nodeToggled(bool checked);
     void lineToggled(bool checked);
     void deleteToggled(bool checked);
     void arrangeClicked();
+    void solveToggled(bool checked);
+    void continueClicked();
+    void rewindClicked();
+    void autoToggled(bool checked);
 
 private:
     QToolButton *makeButton(const QString &text, const QString &objectName = {},
@@ -33,4 +39,7 @@ private:
     QToolButton *m_deleteButton = nullptr;
     QToolButton *m_arrangeButton = nullptr;
     QToolButton *m_solveButton = nullptr;
+    QToolButton *m_continueButton = nullptr;
+    QToolButton *m_rewindButton = nullptr;
+    QToolButton *m_autoButton = nullptr;
 };

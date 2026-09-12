@@ -25,6 +25,13 @@ BoardToolbar::BoardToolbar(QWidget *parent)
     m_deleteButton = makeButton(kDeleteText, "deleteButton");
     m_arrangeButton = makeButton("Ordenar", "arrangeButton", false);
     m_solveButton = makeButton("Resolver", "solveButton");
+    m_continueButton = makeButton("Continuar", "continueButton", false);
+    m_rewindButton = makeButton("Retroceder", "rewindButton", false);
+    m_autoButton = makeButton("Auto", "autoButton");
+
+    m_continueButton->setVisible(false);
+    m_rewindButton->setVisible(false);
+    m_autoButton->setVisible(false);
 
     layout->addWidget(m_nodeButton);
     layout->addWidget(m_lineButton);
@@ -32,6 +39,9 @@ BoardToolbar::BoardToolbar(QWidget *parent)
     layout->addWidget(m_arrangeButton);
     layout->addSpacing(6);
     layout->addWidget(m_solveButton);
+    layout->addWidget(m_continueButton);
+    layout->addWidget(m_rewindButton);
+    layout->addWidget(m_autoButton);
 
     connect(m_nodeButton, &QToolButton::toggled, this, [this](bool checked) {
         if (checked)
@@ -49,6 +59,10 @@ BoardToolbar::BoardToolbar(QWidget *parent)
         emit deleteToggled(checked);
     });
     connect(m_arrangeButton, &QToolButton::clicked, this, &BoardToolbar::arrangeClicked);
+    connect(m_solveButton, &QToolButton::toggled, this, &BoardToolbar::solveToggled);
+    connect(m_continueButton, &QToolButton::clicked, this, &BoardToolbar::continueClicked);
+    connect(m_rewindButton, &QToolButton::clicked, this, &BoardToolbar::rewindClicked);
+    connect(m_autoButton, &QToolButton::toggled, this, &BoardToolbar::autoToggled);
 }
 
 QToolButton *BoardToolbar::makeButton(const QString &text, const QString &objectName,
@@ -93,4 +107,31 @@ void BoardToolbar::setLineModeActive(bool active)
 void BoardToolbar::setDeleteModeActive(bool active)
 {
     setModeButton(m_deleteButton, active, kDeleteText);
+}
+
+void BoardToolbar::setSolveModeActive(bool active)
+{
+    QSignalBlocker blocker(m_solveButton);
+    m_solveButton->setChecked(active);
+    m_solveButton->setText(active ? QStringLiteral("Detener") : QStringLiteral("Resolver"));
+
+    m_nodeButton->setVisible(!active);
+    m_lineButton->setVisible(!active);
+    m_deleteButton->setVisible(!active);
+    m_arrangeButton->setVisible(!active);
+    m_continueButton->setVisible(active);
+    m_rewindButton->setVisible(active);
+    m_autoButton->setVisible(active);
+
+    if (!active) {
+        QSignalBlocker autoBlocker(m_autoButton);
+        m_autoButton->setChecked(false);
+    }
+    updateGeometry();
+}
+
+void BoardToolbar::setAutoRunning(bool running)
+{
+    QSignalBlocker blocker(m_autoButton);
+    m_autoButton->setChecked(running);
 }

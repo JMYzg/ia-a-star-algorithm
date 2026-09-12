@@ -32,6 +32,11 @@ void BoardView::setOverlay(QWidget *overlay)
     placeOverlay();
 }
 
+void BoardView::refreshOverlay()
+{
+    placeOverlay();
+}
+
 void BoardView::placeOverlay()
 {
     if (!m_overlay)

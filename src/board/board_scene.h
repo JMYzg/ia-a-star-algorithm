@@ -5,6 +5,7 @@
 #include <QPointer>
 #include <QVariantAnimation>
 
+#include "core/a_star_engine.h"
 #include "core/graph.h"
 
 class NodeItem;
@@ -23,11 +24,14 @@ public:
     NodeItem *nodeItem(Graph::NodeId nodeId) const;
     EdgeItem *edgeItem(Graph::EdgeId edgeId) const;
     void refreshNodeRoles();
+    void applySolveState(const AStarStep &step);
+    void clearSolveState();
 
 public slots:
     void setAddNodeMode(bool active);
     void setAddLineMode(bool active);
     void setDeleteMode(bool active);
+    void setSolveMode(bool active);
     void cancelInteraction();
     void arrangeNodes();
 

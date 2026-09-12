@@ -46,6 +46,27 @@ void BoardScene::refreshNodeRoles()
     }
 }
 
+void BoardScene::applySolveState(const AStarStep &step)
+{
+    for (auto it = m_nodeItems.constBegin(); it != m_nodeItems.constEnd(); ++it) {
+        const Graph::NodeId nodeId = it.key();
+        NodeItem::SolveVisual visual = NodeItem::SolveVisual::None;
+        if (step.currentNode == nodeId)
+            visual = NodeItem::SolveVisual::Current;
+        else if (step.closedSet.contains(nodeId))
+            visual = NodeItem::SolveVisual::Closed;
+        else if (step.openSet.contains(nodeId))
+            visual = NodeItem::SolveVisual::Open;
+        it.value()->setSolveVisual(visual);
+    }
+}
+
+void BoardScene::clearSolveState()
+{
+    for (auto it = m_nodeItems.constBegin(); it != m_nodeItems.constEnd(); ++it)
+        it.value()->setSolveVisual(NodeItem::SolveVisual::None);
+}
+
 void BoardScene::setAddNodeMode(bool active)
 {
     setMode(active ? Mode::AddNode : Mode::Idle);
@@ -59,6 +80,11 @@ void BoardScene::setAddLineMode(bool active)
 void BoardScene::setDeleteMode(bool active)
 {
     setMode(active ? Mode::Delete : Mode::Idle);
+}
+
+void BoardScene::setSolveMode(bool active)
+{
+    setMode(active ? Mode::Solve : Mode::Idle);
 }
 
 void BoardScene::cancelInteraction()
@@ -330,8 +356,10 @@ void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
     case Mode::Idle:
-    case Mode::Solve:
         break;
+    case Mode::Solve:
+        event->accept();
+        return;
     }
 
     QGraphicsScene::mousePressEvent(event);

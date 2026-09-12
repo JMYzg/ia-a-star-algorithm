@@ -69,3 +69,26 @@ QSplitter::handle {
     background: #846a6a;
     color: #eef0f2;
 }
+
+#solveProgressBar {
+    background: #c6c7c4;
+    border: none;
+}
+
+#solveProgressBar::chunk {
+    background: #353b3c;
+}
+
+QTableWidget {
+    background: #eef0f2;
+    border: none;
+    gridline-color: #c6c7c4;
+    selection-background-color: #846a6a;
+}
+
+QHeaderView::section {
+    background: #353b3c;
+    color: #eef0f2;
+    padding: 4px 8px;
+    border: none;
+}

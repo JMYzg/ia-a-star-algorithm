@@ -8,6 +8,9 @@
 class BoardToolbar;
 class BoardView;
 class EditBox;
+class SetTable;
+class SolveProgressBar;
+class StepPlayer;
 
 class MainWindow : public QMainWindow
 {
@@ -25,4 +28,8 @@ private:
     BoardScene *m_scene = nullptr;
     QWidget *m_sidebar = nullptr;
     EditBox *m_editBox = nullptr;
+    SetTable *m_openTable = nullptr;
+    SetTable *m_closedTable = nullptr;
+    SolveProgressBar *m_progressBar = nullptr;
+    StepPlayer *m_player = nullptr;
 };

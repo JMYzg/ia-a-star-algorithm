@@ -13,6 +13,7 @@ class NodeItem : public QGraphicsObject
     Q_OBJECT
 
 public:
+    enum class SolveVisual { None, Open, Closed, Current };
     enum { Type = UserType + 1 };
 
     explicit NodeItem(Graph::NodeId nodeId, const QString &name, const QColor &color,
@@ -24,6 +25,7 @@ public:
     void setName(const QString &name);
     void setColor(const QColor &color);
     void setRole(bool isStart, bool isGoal);
+    void setSolveVisual(SolveVisual visual);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -44,4 +46,5 @@ private:
     QColor m_color;
     bool m_isStart = false;
     bool m_isGoal = false;
+    SolveVisual m_solveVisual = SolveVisual::None;
 };

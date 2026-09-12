@@ -21,12 +21,16 @@ qt_add_executable(a-star-simulator
     src/main.cpp
     src/mainwindow.cpp
     src/core/graph.cpp
+    src/core/a_star_engine.cpp
     src/board/board_scene.cpp
     src/board/board_view.cpp
     src/board/board_toolbar.cpp
     src/board/edge_item.cpp
     src/board/node_item.cpp
+    src/board/solve_progress_bar.cpp
     src/sidebar/edit_box.cpp
+    src/sidebar/set_table.cpp
+    src/solve/step_player.cpp
     src/app.qrc
 )
 

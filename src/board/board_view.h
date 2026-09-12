@@ -13,6 +13,7 @@ public:
 
     void setOverlay(QWidget *overlay);
     void setPanEnabled(bool enabled);
+    void refreshOverlay();
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
