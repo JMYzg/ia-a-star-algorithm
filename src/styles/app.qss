@@ -9,6 +9,142 @@ QSplitter::handle {
     width: 1px;
 }
 
+QSplitter::handle:hover {
+    background: #846a6a;
+}
+
+QLineEdit {
+    background: #eef0f2;
+    border: 1px solid #353b3c;
+    padding: 4px 6px;
+    selection-background-color: #846a6a;
+}
+
+QLineEdit:focus {
+    border: 1px solid #846a6a;
+}
+
+QLineEdit:disabled {
+    border: 1px solid #a2999e;
+    color: #a2999e;
+}
+
+QCheckBox {
+    spacing: 6px;
+    background: transparent;
+}
+
+QCheckBox::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #353b3c;
+    background: #eef0f2;
+}
+
+QCheckBox::indicator:hover {
+    background: #c6c7c4;
+}
+
+QCheckBox::indicator:checked {
+    background: #846a6a;
+}
+
+QCheckBox:disabled {
+    color: #a2999e;
+}
+
+QCheckBox::indicator:disabled {
+    border: 1px solid #a2999e;
+}
+
+#colorSwatch {
+    border: 1px solid #353b3c;
+    padding: 0;
+}
+
+#colorSwatch:hover {
+    border: 1px solid #846a6a;
+}
+
+QScrollBar:vertical {
+    background: #eef0f2;
+    width: 10px;
+    border: none;
+}
+
+QScrollBar::handle:vertical {
+    background: #353b3c;
+    min-height: 24px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #846a6a;
+}
+
+QScrollBar:horizontal {
+    background: #eef0f2;
+    height: 10px;
+    border: none;
+}
+
+QScrollBar::handle:horizontal {
+    background: #353b3c;
+    min-width: 24px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #846a6a;
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    width: 0;
+    height: 0;
+}
+
+QScrollBar::add-page, QScrollBar::sub-page {
+    background: transparent;
+}
+
+QToolTip {
+    background: #353b3c;
+    color: #eef0f2;
+    border: 1px solid #846a6a;
+    padding: 4px 8px;
+}
+
+QStatusBar {
+    background: #353b3c;
+    color: #eef0f2;
+}
+
+QStatusBar::item {
+    border: none;
+}
+
+QMessageBox {
+    background: #eef0f2;
+}
+
+QMessageBox QLabel {
+    background: transparent;
+}
+
+QMessageBox QPushButton {
+    background: #eef0f2;
+    border: 1px solid #353b3c;
+    padding: 6px 18px;
+    min-width: 64px;
+}
+
+QMessageBox QPushButton:hover {
+    background: #c6c7c4;
+}
+
+QMessageBox QPushButton:default {
+    background: #353b3c;
+    color: #eef0f2;
+}
+
 #sidebar {
     background: #eef0f2;
     border-left: 1px solid #353b3c;

@@ -21,6 +21,7 @@ EditBox::EditBox(Graph &graph, BoardScene &scene, QWidget *parent)
 
     m_nameEdit = new QLineEdit(this);
     m_colorButton = new QPushButton(this);
+    m_colorButton->setObjectName("colorSwatch");
     m_colorButton->setFixedSize(48, 22);
     m_startCheck = new QCheckBox("Inicio", this);
     m_goalCheck = new QCheckBox("Destino", this);
@@ -87,9 +88,7 @@ void EditBox::refresh()
     m_startCheck->setEnabled(hasNode);
     m_goalCheck->setEnabled(hasNode);
     m_colorButton->setEnabled(hasColor);
-    m_colorButton->setStyleSheet(
-        QString("background: %1; border: 1px solid #353b3c; padding: 0;")
-            .arg(currentColor().name()));
+    m_colorButton->setStyleSheet(QString("background: %1;").arg(currentColor().name()));
 }
 
 void EditBox::applyName()
