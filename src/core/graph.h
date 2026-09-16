@@ -4,6 +4,7 @@
 #include <QPointF>
 #include <QString>
 #include <QVector>
+#include <QSet>
 
 class Graph
 {
@@ -55,10 +56,10 @@ public:
 
 private:
     static QString nodeNameForIndex(int index);
+    QString nextNodeName() const;
 
     QVector<Node> m_nodes;
     QVector<Edge> m_edges;
     NodeId m_nextNodeId = 0;
-    int m_nextNameIndex = 0;
     EdgeId m_nextEdgeId = 0;
 };

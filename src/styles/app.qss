@@ -223,6 +223,18 @@ QMessageBox QPushButton:default {
     font-style: italic;
 }
 
+#pathSummaryText {
+    background: transparent;
+    color: #353b3c;
+    font-weight: bold;
+}
+
+#pathSummaryCost {
+    background: transparent;
+    color: #846a6a;
+    font-weight: bold;
+}
+
 QTableWidget {
     background: #eef0f2;
     border: none;

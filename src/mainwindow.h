@@ -8,6 +8,7 @@
 class BoardToolbar;
 class BoardView;
 class EditBox;
+class PathSummary;
 class SetTable;
 class SolveProgressBar;
 class StepPlayer;
@@ -24,6 +25,7 @@ protected:
 
 private:
     QWidget *makeSidebarSection(const QString &title, QWidget *content = nullptr) const;
+    QString pathSummaryText(const QList<Graph::NodeId> &path) const;
 
     Graph m_graph;
     BoardView *m_board = nullptr;
@@ -33,6 +35,7 @@ private:
     EditBox *m_editBox = nullptr;
     SetTable *m_openTable = nullptr;
     SetTable *m_closedTable = nullptr;
+    PathSummary *m_pathSummary = nullptr;
     SolveProgressBar *m_progressBar = nullptr;
     StepPlayer *m_player = nullptr;
 };

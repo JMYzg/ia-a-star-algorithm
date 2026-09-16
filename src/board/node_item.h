@@ -13,7 +13,7 @@ class NodeItem : public QGraphicsObject
     Q_OBJECT
 
 public:
-    enum class SolveVisual { None, Open, Closed, Current };
+    enum class SolveVisual { None, Open, Closed, Current, Path };
     enum { Type = UserType + 1 };
 
     explicit NodeItem(Graph::NodeId nodeId, const QString &name, const QColor &color,

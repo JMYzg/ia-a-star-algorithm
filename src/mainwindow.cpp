@@ -7,6 +7,7 @@
 #include "board/node_item.h"
 #include "board/solve_progress_bar.h"
 #include "sidebar/edit_box.h"
+#include "sidebar/path_summary.h"
 #include "sidebar/set_table.h"
 #include "solve/step_player.h"
 
@@ -19,6 +20,7 @@
 #include <QShortcut>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QStringList>
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -62,9 +64,12 @@ MainWindow::MainWindow(QWidget *parent)
                                QStringLiteral("Aparece al resolver el grafo"));
     m_closedTable = new SetTable(m_graph, false,
                                  QStringLiteral("Aparece al resolver el grafo"));
+    m_pathSummary = new PathSummary(QStringLiteral("Aparece al terminar el proceso"));
     sidebarLayout->addWidget(makeSidebarSection("Edit box", m_editBox), 3);
     sidebarLayout->addWidget(makeSidebarSection("Open set", m_openTable), 3);
     sidebarLayout->addWidget(makeSidebarSection("Closed set", m_closedTable), 3);
+    sidebarLayout->addWidget(makeSidebarSection(QStringLiteral("Recorrido \u00f3ptimo"),
+                                                m_pathSummary), 2);
 
     splitter->addWidget(boardPane);
     splitter->addWidget(m_sidebar);
@@ -131,6 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
         m_scene->clearSolveState();
         m_openTable->clearRows();
         m_closedTable->clearRows();
+        m_pathSummary->clear();
         m_progressBar->reset();
         m_progressBar->setVisible(false);
     });
@@ -152,7 +158,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_player, &StepPlayer::runFinished, this, [this](bool found) {
         if (found) {
             m_scene->highlightPath(m_player->path());
+            const AStarStep &step = m_player->currentStep();
+            const qreal cost = step.g.value(m_graph.goalNodeId(), 0.0);
+            m_pathSummary->showPath(pathSummaryText(m_player->path()), cost);
             statusBar()->showMessage(QStringLiteral("Camino encontrado"), 4000);
+        } else {
+            m_pathSummary->showNoPath();
+            QMessageBox::warning(this, QStringLiteral("Resolver"),
+                                 QStringLiteral("No existe un camino entre el nodo inicio "
+                                                "y el nodo destino."));
         }
     });
     connect(m_player, &StepPlayer::autoRunningChanged, m_toolbar, &BoardToolbar::setAutoRunning);
@@ -213,4 +227,15 @@ QWidget *MainWindow::makeSidebarSection(const QString &title, QWidget *content) 
     }
 
     return section;
+}
+
+QString MainWindow::pathSummaryText(const QList<Graph::NodeId> &path) const
+{
+    QStringList names;
+    names.reserve(path.size());
+    for (const Graph::NodeId nodeId : path) {
+        const Graph::Node *node = m_graph.node(nodeId);
+        names.append(node ? node->name : QString());
+    }
+    return names.join(QStringLiteral(" \u2192 "));
 }

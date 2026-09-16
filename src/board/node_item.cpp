@@ -18,6 +18,8 @@ const QColor kOpenFill{QStringLiteral("#c6c7c4")};
 const QColor kClosedFill{QStringLiteral("#a2999e")};
 const QColor kCurrentFill{QStringLiteral("#353b3c")};
 const QColor kCurrentText{QStringLiteral("#eef0f2")};
+const QColor kPathFill{QStringLiteral("#846a6a")};
+const QColor kPathText{QStringLiteral("#eef0f2")};
 }
 
 NodeItem::NodeItem(Graph::NodeId nodeId, const QString &name, const QColor &color,
@@ -105,6 +107,9 @@ void NodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     } else if (m_solveVisual == SolveVisual::Current) {
         fill = kCurrentFill;
         textColor = kCurrentText;
+    } else if (m_solveVisual == SolveVisual::Path) {
+        fill = kPathFill;
+        textColor = kPathText;
     }
     painter->setBrush(fill);
     painter->drawEllipse(QPointF(0, 0), kNodeRadius, kNodeRadius);

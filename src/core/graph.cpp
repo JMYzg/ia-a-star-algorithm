@@ -13,11 +13,23 @@ QString Graph::nodeNameForIndex(int index)
     return name;
 }
 
+QString Graph::nextNodeName() const
+{
+    QSet<QString> used;
+    for (const Node &n : m_nodes)
+        used.insert(n.name);
+    for (int i = 0;; ++i) {
+        const QString candidate = nodeNameForIndex(i);
+        if (!used.contains(candidate))
+            return candidate;
+    }
+}
+
 Graph::NodeId Graph::addNode(const QPointF &position)
 {
     Node node;
     node.id = m_nextNodeId++;
-    node.name = nodeNameForIndex(m_nextNameIndex++);
+    node.name = nextNodeName();
     node.color = QColor("#c6c7c4");
     node.position = position;
     m_nodes.append(node);

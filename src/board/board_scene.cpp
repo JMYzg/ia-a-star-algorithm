@@ -48,6 +48,8 @@ void BoardScene::refreshNodeRoles()
 
 void BoardScene::applySolveState(const AStarStep &step)
 {
+    for (auto it = m_edgeItems.constBegin(); it != m_edgeItems.constEnd(); ++it)
+        it.value()->setHighlight(false);
     for (auto it = m_nodeItems.constBegin(); it != m_nodeItems.constEnd(); ++it) {
         const Graph::NodeId nodeId = it.key();
         NodeItem::SolveVisual visual = NodeItem::SolveVisual::None;
@@ -71,6 +73,10 @@ void BoardScene::clearSolveState()
 
 void BoardScene::highlightPath(const QList<Graph::NodeId> &path)
 {
+    for (const Graph::NodeId nodeId : path) {
+        if (NodeItem *item = m_nodeItems.value(nodeId))
+            item->setSolveVisual(NodeItem::SolveVisual::Path);
+    }
     for (int i = 0; i + 1 < path.size(); ++i) {
         for (auto it = m_edgeItems.constBegin(); it != m_edgeItems.constEnd(); ++it) {
             EdgeItem *edgeItem = it.value();

@@ -29,6 +29,7 @@ qt_add_executable(a-star-simulator
     src/board/node_item.cpp
     src/board/solve_progress_bar.cpp
     src/sidebar/edit_box.cpp
+    src/sidebar/path_summary.cpp
     src/sidebar/set_table.cpp
     src/solve/step_player.cpp
     src/app.qrc
