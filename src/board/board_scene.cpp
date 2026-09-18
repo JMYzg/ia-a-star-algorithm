@@ -441,8 +441,9 @@ void BoardScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     if (m_mode == Mode::Solve && m_dragNodeId != Graph::kInvalidNodeId) {
         if (NodeItem *item = m_nodeItems.value(m_dragNodeId);
-            item && item->pos() != m_dragStartPos)
+            item && item->pos() != m_dragStartPos) {
             emit nodeDroppedInSolve(m_dragNodeId);
+        }
         m_dragNodeId = Graph::kInvalidNodeId;
     }
 }

@@ -166,8 +166,9 @@ MainWindow::MainWindow(QWidget *parent)
         m_progressBar->reset();
         m_player->reapply(m_graph, m_graph.startNodeId(), m_graph.goalNodeId());
     });
-    connect(m_player, &StepPlayer::autoRunningChanged, m_scene,
-            &BoardScene::setSolveNodeDragEnabled);
+    connect(m_player, &StepPlayer::autoRunningChanged, this, [this](bool running) {
+        m_scene->setSolveNodeDragEnabled(!running);
+    });
     connect(m_player, &StepPlayer::runFinished, this, [this](bool found) {
         if (found) {
             m_scene->highlightPath(m_player->path());
