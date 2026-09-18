@@ -15,6 +15,7 @@ public:
     explicit StepPlayer(QObject *parent = nullptr);
 
     void start(const Graph &graph, Graph::NodeId startId, Graph::NodeId goalId);
+    void reapply(const Graph &graph, Graph::NodeId startId, Graph::NodeId goalId);
     void stop();
 
     bool isActive() const;

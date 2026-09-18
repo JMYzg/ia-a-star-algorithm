@@ -36,6 +36,36 @@ void StepPlayer::start(const Graph &graph, Graph::NodeId startId, Graph::NodeId 
     next();
 }
 
+void StepPlayer::reapply(const Graph &graph, Graph::NodeId startId, Graph::NodeId goalId)
+{
+    if (m_steps.isEmpty()) {
+        start(graph, startId, goalId);
+        return;
+    }
+
+    AStarEngine engine(graph);
+    const AStarEngine::Status status = engine.run(startId, goalId);
+    if (status == AStarEngine::Status::MissingStart) {
+        emit validationFailed(QStringLiteral("No hay nodo inicio definido. Selecciona uno en el edit box."));
+        return;
+    }
+    if (status == AStarEngine::Status::MissingGoal) {
+        emit validationFailed(QStringLiteral("No hay nodo destino definido. Selecciona uno en el edit box."));
+        return;
+    }
+
+    m_steps = engine.steps();
+    m_path = engine.path();
+
+    if (m_index < 0)
+        return;
+
+    m_index = qBound(0, m_index, m_steps.size() - 1);
+    emit stepChanged(m_index, m_steps.size());
+    if (m_index == m_steps.size() - 1)
+        emit runFinished(foundPath());
+}
+
 void StepPlayer::stop()
 {
     m_autoTimer.stop();

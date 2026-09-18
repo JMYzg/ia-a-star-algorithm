@@ -34,15 +34,18 @@ public slots:
     void setAddLineMode(bool active);
     void setDeleteMode(bool active);
     void setSolveMode(bool active);
+    void setSolveNodeDragEnabled(bool enabled);
     void cancelInteraction();
     void arrangeNodes();
 
 signals:
     void modeChanged(BoardScene::Mode mode);
+    void nodeDroppedInSolve(Graph::NodeId nodeId);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
     void setMode(Mode mode);
@@ -58,6 +61,9 @@ private:
 
     Graph &m_graph;
     Mode m_mode = Mode::Idle;
+    bool m_solveDragEnabled = false;
+    Graph::NodeId m_dragNodeId = Graph::kInvalidNodeId;
+    QPointF m_dragStartPos;
     QHash<Graph::NodeId, NodeItem *> m_nodeItems;
     QHash<Graph::EdgeId, EdgeItem *> m_edgeItems;
     Graph::NodeId m_lineAnchorId = Graph::kInvalidNodeId;

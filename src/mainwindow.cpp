@@ -130,6 +130,7 @@ MainWindow::MainWindow(QWidget *parent)
         m_progressBar->setVisible(true);
         m_editBox->clearSelection();
         m_scene->setSolveMode(true);
+        m_scene->setSolveNodeDragEnabled(true);
     });
     connect(m_player, &StepPlayer::stopped, this, [this] {
         m_scene->setSolveMode(false);
@@ -154,7 +155,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_player, &StepPlayer::validationFailed, this, [this](const QString &message) {
         QMessageBox::warning(this, QStringLiteral("Resolver"), message);
         m_toolbar->setSolveModeActive(false);
+        if (m_player->isActive())
+            m_player->stop();
     });
+    connect(m_scene, &BoardScene::nodeDroppedInSolve, this, [this](Graph::NodeId) {
+        if (!m_player->isActive() || m_player->isAutoRunning())
+            return;
+        m_scene->clearSolveState();
+        m_pathSummary->clear();
+        m_progressBar->reset();
+        m_player->reapply(m_graph, m_graph.startNodeId(), m_graph.goalNodeId());
+    });
+    connect(m_player, &StepPlayer::autoRunningChanged, m_scene,
+            &BoardScene::setSolveNodeDragEnabled);
     connect(m_player, &StepPlayer::runFinished, this, [this](bool found) {
         if (found) {
             m_scene->highlightPath(m_player->path());

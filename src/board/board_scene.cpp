@@ -121,7 +121,14 @@ void BoardScene::setDeleteMode(bool active)
 
 void BoardScene::setSolveMode(bool active)
 {
+    if (active)
+        m_solveDragEnabled = true;
     setMode(active ? Mode::Solve : Mode::Idle);
+}
+
+void BoardScene::setSolveNodeDragEnabled(bool enabled)
+{
+    m_solveDragEnabled = enabled;
 }
 
 void BoardScene::cancelInteraction()
@@ -138,6 +145,10 @@ void BoardScene::setMode(Mode mode)
     if (m_mode == Mode::AddLine && mode != Mode::AddLine)
         stopGhostLine();
     m_mode = mode;
+    if (mode != Mode::Solve) {
+        m_solveDragEnabled = false;
+        m_dragNodeId = Graph::kInvalidNodeId;
+    }
     emit modeChanged(m_mode);
 }
 
@@ -394,9 +405,18 @@ void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
     case Mode::Idle:
         break;
-    case Mode::Solve:
+    case Mode::Solve: {
+        if (m_solveDragEnabled) {
+            if (NodeItem *node = nodeItemAt(pos)) {
+                m_dragNodeId = node->nodeId();
+                m_dragStartPos = node->pos();
+                QGraphicsScene::mousePressEvent(event);
+                return;
+            }
+        }
         event->accept();
         return;
+    }
     }
 
     QGraphicsScene::mousePressEvent(event);
@@ -413,4 +433,16 @@ void BoardScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 
     QGraphicsScene::mouseMoveEvent(event);
+}
+
+void BoardScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsScene::mouseReleaseEvent(event);
+
+    if (m_mode == Mode::Solve && m_dragNodeId != Graph::kInvalidNodeId) {
+        if (NodeItem *item = m_nodeItems.value(m_dragNodeId);
+            item && item->pos() != m_dragStartPos)
+            emit nodeDroppedInSolve(m_dragNodeId);
+        m_dragNodeId = Graph::kInvalidNodeId;
+    }
 }
